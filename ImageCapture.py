@@ -6,30 +6,47 @@ from time import sleep, strftime
 
 if __name__ == "__main__":
     fps = 10
-    frame_size = (640,480)
+    capture_length = 30
+
+    frame_size = (int(cap.get(3)), int(cap.get(4)))    
     timestr = strftime("%Y%m%d-%H%M%S")
     output_file = f"video_{timestr}"
 
     cap = cv2.VideoCapture(0) # Create video capture object with 0th camera
-    fourcc = cv2.VideoWriter_fourcc(*'X264') # Create VideoWriter format object with smallest file size
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG') # Create VideoWriter format object with smallest file size
     out = cv2.VideoWriter(output_file, fourcc, fps, frame_size) # fps on write and wait on read should match? frame size?
 
     pinNumber = 3
+    triggered = False
     pir = InputDevice(pinNumber, pull_up=True, active_state=True)
 
-    while(cap.isOpened()):
+    while(True):
         # Check if motion is sensed
         if(pir.is_active):
-            triggered = True
-            ret, frame = cap.read()
-            if ret==True:
-                out.write(frame)
-        else:
-            if(triggered):
+            timer = 0
+            while(timer < capture_length*fps):
+                # If we detect more motion we reset the timer
+                if(pir.is_active):
+                    timer = 0
+                
+                # Capture frame
+                if(cap.isOpened()):
+                    ret, frame = cap.read()
+                    if ret==True:
+                        out.write(frame)
+
+                # Increment 
+                sleep(1/fps)
+                timer += 1
+            
+            # If PIR was triggered for longer than capture length so save
+            if(timer > capture_length*fps):
                 timestr = strftime("%Y%m%d-%H%M%S")
                 output_file = f"video_{timestr}"
                 out = cv2.VideoWriter(output_file, fourcc, fps, frame_size)
-                triggered = False
+            
+            # Else we detected something other than cat so clear VideoWriter
+            else:
 
         sleep(1/fps)
 
