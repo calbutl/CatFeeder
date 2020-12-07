@@ -1,22 +1,19 @@
 import numpy as np
 import cv2
-from gpiozero import InputDevice
+from gpiozero import DigitalInputDevice, OutputDevice
 from time import sleep, strftime
 
 
 if __name__ == "__main__":
     # Tunables
     fps = 10
-    capture_length = 30
 
-    # OpenCV setup
-    frame_size = (int(cap.get(3)), int(cap.get(4)))    
-    timestr = strftime("%Y%m%d-%H%M%S")
-    output_file = f"video_{timestr}"
-
+    # Video Reader Initial Setup
     cap = cv2.VideoCapture(0) # Create video capture object with 0th camera
+    frame_size = (int(cap.get(3)), int(cap.get(4)))   
+
+    # Video Writer Initial Setup
     fourcc = cv2.VideoWriter_fourcc(*'MJPG') # Create VideoWriter format object with smallest file size
-    out = cv2.VideoWriter(output_file, fourcc, fps, frame_size) # fps on write and wait on read should match? frame size?
 
     # PIR Setup
     PIRPinNum = 26
@@ -26,40 +23,44 @@ if __name__ == "__main__":
     LEDPinNum = 19
     LED = OutputDevice(LEDPinNum)
 
-    # MAIN LOOP
-    while(True):
-        # Check if motion is sensed
-        if(pir.is_active):
-            timer = 0
-            while(timer < capture_length*fps):
-                # If we detect more motion we reset the timer
-                if(pir.is_active):
-                    timer = 0
-                
-                # Capture frame
-                if(cap.isOpened()):
-                    ret, frame = cap.read()
-                    if ret==True:
-                        out.write(frame)
 
-                else:
-                    exit()
-                # Sleep and increment 
-                sleep(1/fps)
-                timer += 1
-            
-            # If PIR was triggered for longer than capture length so save
-            if(timer > capture_length*fps):
-                timestr = strftime("%Y%m%d-%H%M%S")
-                output_file = f"video_{timestr}"
-                out = cv2.VideoWriter(output_file, fourcc, fps, frame_size)
-            
-            # Else we detected something other than cat so clear VideoWriter
+    INACTIVE_THRESHOLD = 10*fps # frames
+    inactive_time = 10*fps # frames
+    rolling = False
+
+
+    while(cap.isOpened()):
+
+        # if there is movement and we're not rolling
+        if pir.is_active and not rolling:
+            inactive_time = 0
+            rolling = True
+            LED.on()
+
+            output_path = "images/TrainingCollection"
+            timestr = strftime("%Y%m%d-%H%M%S")
+            output_file = f"video_{timestr}.avi"
+            out = cv2.VideoWriter(f"{output_path}/{output_file}", fourcc, fps, frame_size)
+
+        # if we're rolling
+        if inactive_time <= INACTIVE_THRESHOLD:
+            ret, frame = cap.read()
+            if ret==True:
+                out.write(frame)
+
+            if(pir.is_active):
+                inactive_time = 0
             else:
+                inactive_time +=1
+
+        # if we're done rolling
+        else:
+            rolling = False
+            LED.off()
+            out.release()
 
         sleep(1/fps)
 
 
     cap.release()
-    out.release()
     cv2.destroyAllWindows()
