@@ -32,7 +32,7 @@ if __name__ == "__main__":
     while(cap.isOpened()):
 
         # if there is movement and we're not rolling
-        if pir.is_active and not rolling:
+        if PIR.is_active and not rolling:
             inactive_time = 0
             rolling = True
             LED.on()
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             if ret==True:
                 out.write(frame)
 
-            if(pir.is_active):
+            if(PIR.is_active):
                 inactive_time = 0
             else:
                 inactive_time +=1
