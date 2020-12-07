@@ -54,7 +54,7 @@ if __name__ == "__main__":
                 inactive_time +=1
 
         # if we're done rolling
-        else:
+        elif(rolling == True):
             rolling = False
             LED.off()
             out.release()
