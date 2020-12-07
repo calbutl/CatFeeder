@@ -19,7 +19,20 @@ if __name__ == "__main__":
             ret, frame = cap.read()
             if ret==True:
                 out.write(frame)
-                
+
     cap.release()
     out.release()
     cv2.destroyAllWindows()
+
+# Display video we just saved.
+cap = cv2.VideoCapture(output_file)
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        print("Can't receive frame (stream end?). Exiting ...")
+        break
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    cv2.imshow('frame', gray)
+
+cap.release()
+cv2.destroyAllWindows()
