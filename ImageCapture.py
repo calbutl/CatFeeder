@@ -41,6 +41,7 @@ if __name__ == "__main__":
             timestr = strftime("%Y%m%d-%H%M%S")
             output_file = f"video_{timestr}.avi"
             out = cv2.VideoWriter(f"{output_path}/{output_file}", fourcc, fps, frame_size)
+            print('Recording')
 
         # if we're rolling
         if inactive_time < INACTIVE_THRESHOLD:
@@ -58,6 +59,7 @@ if __name__ == "__main__":
             rolling = False
             LED.off()
             out.release()
+            print('Stopped recording')
 
         sleep(1/fps)
 

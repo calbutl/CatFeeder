@@ -1,4 +1,2 @@
 #!/bin/bash
-rsync -azpq pi@10.0.0.5:~/Catfeeder/images .
-
-
+rsync -azpqP pi@10.0.0.5:~/CatFeeder/images .
