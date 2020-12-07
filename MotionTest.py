@@ -2,12 +2,6 @@ from gpiozero import OutputDevice
 from gpiozero import DigitalInputDevice
 from time import sleep
 
-def turnOnLED():
-    LED.on()
-
-def turnOffLED():
-    LED.off()
-
 if __name__ == "__main__":
     PIRPinNum = 26
     PIR = DigitalInputDevice(PIRPinNum, pull_up=False)
@@ -15,9 +9,10 @@ if __name__ == "__main__":
     LEDPinNum = 19
     LED = OutputDevice(LEDPinNum)
 
-    PIR.when_activated = turnOnLED
-    PIR.when_deactivated = turnOffLED
-
     while(True):
+        if(PIR.is_active == 1):
+            LED.on()
+        else:
+            LED.off()
         print(LED.value)
         sleep(0.25)

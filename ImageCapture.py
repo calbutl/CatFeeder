@@ -5,9 +5,11 @@ from time import sleep, strftime
 
 
 if __name__ == "__main__":
+    # Tunables
     fps = 10
     capture_length = 30
 
+    # OpenCV setup
     frame_size = (int(cap.get(3)), int(cap.get(4)))    
     timestr = strftime("%Y%m%d-%H%M%S")
     output_file = f"video_{timestr}"
@@ -16,10 +18,15 @@ if __name__ == "__main__":
     fourcc = cv2.VideoWriter_fourcc(*'MJPG') # Create VideoWriter format object with smallest file size
     out = cv2.VideoWriter(output_file, fourcc, fps, frame_size) # fps on write and wait on read should match? frame size?
 
-    pinNumber = 3
-    triggered = False
-    pir = InputDevice(pinNumber, pull_up=True, active_state=True)
+    # PIR Setup
+    PIRPinNum = 26
+    PIR = DigitalInputDevice(PIRPinNum, pull_up=False)
 
+    # LED Setup
+    LEDPinNum = 19
+    LED = OutputDevice(LEDPinNum)
+
+    # MAIN LOOP
     while(True):
         # Check if motion is sensed
         if(pir.is_active):
@@ -35,7 +42,9 @@ if __name__ == "__main__":
                     if ret==True:
                         out.write(frame)
 
-                # Increment 
+                else:
+                    exit()
+                # Sleep and increment 
                 sleep(1/fps)
                 timer += 1
             

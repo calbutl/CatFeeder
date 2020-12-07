@@ -22,7 +22,6 @@ if __name__ == "__main__":
 
     cap.release()
     out.release()
-    cv2.destroyAllWindows()
 
 # Display video we just saved.
 cap = cv2.VideoCapture(output_file)
