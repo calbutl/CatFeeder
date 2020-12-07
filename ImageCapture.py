@@ -43,7 +43,7 @@ if __name__ == "__main__":
             out = cv2.VideoWriter(f"{output_path}/{output_file}", fourcc, fps, frame_size)
 
         # if we're rolling
-        if inactive_time <= INACTIVE_THRESHOLD:
+        if inactive_time < INACTIVE_THRESHOLD:
             ret, frame = cap.read()
             if ret==True:
                 out.write(frame)
